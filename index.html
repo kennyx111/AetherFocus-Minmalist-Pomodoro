@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AetherFocus — Minimalist Pomodoro Timer</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Finalized Favicon Links -->
+<link rel="icon" type="image/png" href="logo.png.png" sizes="512x512">
+<link rel="apple-touch-icon" href="logo.png.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="pomodoro-style.css" />
+</head>
+<body class="default-theme">
+
+  <!-- Atmospheric Backgrounds -->
+  <div class="bg-layer bg-base" id="bg-base"></div>
+  <canvas id="ambient-canvas" class="bg-layer"></canvas>
+  <div class="bg-layer bg-overlay"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">AetherFocus</span>
+    </div>
+    
+    <nav class="nav-controls">
+      <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings">
+        <i data-feather="sliders"></i>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Display Stage -->
+  <main class="timer-container">
+    <div class="mode-indicator" id="timer-mode">FOCUS</div>
+
+    <div class="timer-wrapper">
+      <!-- MONUMENTAL MECHANICAL FLIP CLOCK -->
+      <div class="flip-clock-stage" id="flip-display">
+        
+        <!-- Minutes -->
+        <div class="flip-group">
+          <div class="flip-unit" id="flip-m1">
+            <div class="card-half top-half"><span class="digit">2</span></div>
+            <div class="card-half bottom-half"><span class="digit">2</span></div>
+            <div class="flip-card flap-top"><span class="digit">2</span></div>
+            <div class="flip-card flap-bottom"><span class="digit">2</span></div>
+            <div class="card-hinge"></div>
+          </div>
+          <div class="flip-unit" id="flip-m2">
+            <div class="card-half top-half"><span class="digit">5</span></div>
+            <div class="card-half bottom-half"><span class="digit">5</span></div>
+            <div class="flip-card flap-top"><span class="digit">5</span></div>
+            <div class="flip-card flap-bottom"><span class="digit">5</span></div>
+            <div class="card-hinge"></div>
+          </div>
+        </div>
+        
+        <!-- Separator -->
+        <div class="flip-colon-separator">
+          <span class="colon-dot"></span>
+          <span class="colon-dot"></span>
+        </div>
+
+        <!-- Seconds -->
+        <div class="flip-group">
+          <div class="flip-unit" id="flip-s1">
+            <div class="card-half top-half"><span class="digit">0</span></div>
+            <div class="card-half bottom-half"><span class="digit">0</span></div>
+            <div class="flip-card flap-top"><span class="digit">0</span></div>
+            <div class="flip-card flap-bottom"><span class="digit">0</span></div>
+            <div class="card-hinge"></div>
+          </div>
+          <div class="flip-unit" id="flip-s2">
+            <div class="card-half top-half"><span class="digit">0</span></div>
+            <div class="card-half bottom-half"><span class="digit">0</span></div>
+            <div class="flip-card flap-top"><span class="digit">0</span></div>
+            <div class="flip-card flap-bottom"><span class="digit">0</span></div>
+            <div class="card-hinge"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="control-dock">
+      <button id="reset-btn" class="dock-btn secondary" title="Reset Session" aria-label="Reset Session">
+        <i data-feather="rotate-ccw"></i>
+      </button>
+      
+      <button id="start-pause-btn" class="dock-btn primary">
+        <span>START</span>
+      </button>
+      
+      <button id="skip-btn" class="dock-btn secondary" title="Skip Session" aria-label="Skip Session">
+        <i data-feather="fast-forward"></i>
+      </button>
+    </div>
+
+    <!-- Session Status -->
+    <div class="session-status-badge">
+      <div class="session-dots" id="session-dots"></div>
+      <div class="session-divider"></div>
+      <div class="session-text">
+        <span class="session-label">COMPLETED</span>
+        <span class="session-count" id="completed-count">0</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom-Right Floating Ambient Music Player -->
+  <div class="music-widget-wrapper">
+    <div class="music-popover" id="music-popover">
+      <div class="music-header">
+        <span>Ambient Audio</span>
+        <span class="music-status" id="music-status">OFF</span>
+      </div>
+
+      <!-- Custom Stylized Dropdown -->
+      <div class="custom-select-container" id="music-select-container">
+        <div class="custom-select-trigger" id="music-select-trigger">
+          <span id="selected-music-text">Mute (No Music)</span>
+          <i data-feather="chevron-down"></i>
+        </div>
+        <div class="custom-select-options" id="music-select-options">
+          <div class="select-option active" data-value="none">Mute (No Music)</div>
+          <div class="select-option" data-value="binaural">Binaural Beats (432Hz Focus)</div>
+          <div class="select-option" data-value="cozy">Cozy Vibe (Warm Drone)</div>
+        </div>
+      </div>
+
+      <!-- Volume Slider -->
+      <div class="volume-control-group">
+        <i data-feather="volume-2" class="vol-icon"></i>
+        <input type="range" id="music-volume" min="0" max="1" step="0.01" value="0.5" class="custom-range" />
+      </div>
+    </div>
+
+    <button id="music-toggle-btn" class="icon-btn music-btn" title="Ambient Music" aria-label="Ambient Music">
+      <i data-feather="music"></i>
+    </button>
+  </div>
+
+  <!-- Settings Drawer -->
+  <aside class="settings-drawer" id="settings-drawer">
+    <div class="drawer-header">
+      <h3>Preferences</h3>
+      <button id="close-settings-drawer" class="icon-btn"><i data-feather="x"></i></button>
+    </div>
+    <div class="settings-form">
+      
+      <!-- Audio Settings Toggle -->
+      <div class="setting-group">
+        <h4>Sound & Audio</h4>
+        <div class="setting-item toggle-item">
+          <label for="sound-toggle">Enable Alert Sounds</label>
+          <label class="switch">
+            <input type="checkbox" id="sound-toggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Custom Background Upload -->
+      <div class="setting-group">
+        <h4>Custom Atmosphere</h4>
+        <label for="bg-file-input" class="file-upload-label">
+          <i data-feather="image"></i> Upload Background
+        </label>
+        <input type="file" id="bg-file-input" accept="image/*" style="display: none;" />
+        <button id="remove-bg-btn" class="btn-danger-text" style="display: none;">Reset Wallpaper</button>
+      </div>
+
+      <!-- VISUAL WORKFLOW BUILDER -->
+      <div class="setting-group">
+        <h4>Workflow Sequence</h4>
+        <p class="builder-hint">Click blocks to build your pipeline. Click a badge to remove.</p>
+        
+        <!-- Add Block Controls -->
+        <div class="builder-actions">
+          <button class="add-block-btn focus-add" data-type="FOCUS">
+            <span class="add-icon">+</span> Focus
+          </button>
+          <button class="add-block-btn short-add" data-type="SHORT">
+            <span class="add-icon">+</span> Short
+          </button>
+          <button class="add-block-btn long-add" data-type="LONG">
+            <span class="add-icon">+</span> Long
+          </button>
+        </div>
+
+        <!-- Dynamic Sequence Rail -->
+        <div class="sequence-rail" id="sequence-rail"></div>
+
+        <!-- Repeat Sequence Toggle -->
+        <div class="setting-item toggle-item">
+          <label for="repeat-toggle">Loop Sequence Continuously</label>
+          <label class="switch">
+            <input type="checkbox" id="repeat-toggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Timer Durations -->
+      <div class="setting-group">
+        <h4>Durations (Minutes)</h4>
+        <div class="setting-item">
+          <label for="input-focus">Focus</label>
+          <input type="number" id="input-focus" value="25" min="1" max="120" />
+        </div>
+        <div class="setting-item">
+          <label for="input-short">Short Break</label>
+          <input type="number" id="input-short" value="5" min="1" max="60" />
+        </div>
+        <div class="setting-item">
+          <label for="input-long">Long Break</label>
+          <input type="number" id="input-long" value="15" min="1" max="60" />
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <script src="pomodoro.js"></script>
+</body>
+</html>
