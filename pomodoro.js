@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
     const now = audioCtx.currentTime;
-    const freqs = [130.81, 196.00, 246.94, 293.66, 329.63]; // C Major 9 Warm Pad
+    const freqs = [130.81, 196.00, 246.94, 293.66, 329.63]; 
     
     freqs.forEach(freq => {
       const osc = audioCtx.createOscillator();
@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return config.focus * 60;
   }
 
-  /* Real-Time LocalStorage Timer Continuity Sync */
   function syncTimeOnLoad() {
     if (state.isRunning && state.lastTimestamp) {
       const elapsedSeconds = Math.floor((Date.now() - state.lastTimestamp) / 1000);
@@ -327,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
   }
 
-  /* Completion Logic: Loops back to actual duration (No 00:00 freeze) */
   function handleComplete() {
     pauseTimer();
     const currentMode = getCurrentMode();
@@ -347,10 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Move to next step in workflow sequence
     state.sequenceIndex = (state.sequenceIndex + 1) % sequence.length;
-    
-    // Reset timer to exact duration specified in menu settings
     state.timeLeft = getModeDuration(getCurrentMode());
     
     applyCurrentState();
@@ -365,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
   }
 
-  /* Dynamic Dots for Every Step in Sequence */
   function renderSessionDots() {
     const sequence = getCurrentSequence();
     el.sessionDots.innerHTML = '';
@@ -375,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dot.className = 'dot';
       dot.title = `${idx + 1}. ${mode}`;
       
-      // Light up dot if current or already completed in this sequence round
       if (idx <= state.sequenceIndex) {
         dot.classList.add('active');
       }
@@ -383,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* Visual Sequence Builder */
   function renderSequenceRail() {
     el.sequenceRail.innerHTML = '';
     if (config.sequence.length === 0) {
@@ -424,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* Color Accent Sampler */
   function extractAccentColor(imgElement) {
     const tempCanvas = document.createElement('canvas');
     const ctx = tempCanvas.getContext('2d');
@@ -464,7 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.setProperty('--accent-rgb', rgbArray.join(','));
   }
 
-  /* Reliable Background Atmosphere Persistence */
   function setBackground(dataUrl, saveStorage = true) {
     if (dataUrl) {
       if (saveStorage) {
@@ -525,7 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsDataURL(file);
   }
 
-  /* Dynamic Particle Canvas */
   const ctx = el.canvas.getContext('2d');
   let particles = [];
 
@@ -612,20 +601,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Music Widget Listeners
-  el.musicBtn.addEventListener('click', () => {
+  el.musicBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     el.musicPopover.classList.toggle('open');
   });
 
   document.addEventListener('click', (e) => {
-    if (!el.musicPopover.contains(e.target) && !el.musicBtn.contains(e.target)) {
+    if (el.musicPopover && !el.musicPopover.contains(e.target) && !el.musicBtn.contains(e.target)) {
       el.musicPopover.classList.remove('open');
     }
-    if (!el.musicTrigger.contains(e.target)) {
+    if (el.musicTrigger && !el.musicTrigger.contains(e.target)) {
       el.musicOptions.classList.remove('show');
     }
   });
 
-  el.musicTrigger.addEventListener('click', () => {
+  el.musicTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
     el.musicOptions.classList.toggle('show');
   });
 
@@ -657,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   el.volumeRange.addEventListener('input', (e) => setMusicVolume(e.target.value));
 
-  // Controls & Settings Listeners
+  // Controls & Timer Action Listeners
   el.startBtn.addEventListener('click', () => state.isRunning ? pauseTimer() : startTimer());
   el.resetBtn.addEventListener('click', resetTimer);
   el.skipBtn.addEventListener('click', () => {
@@ -672,67 +663,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  el.settingsBtn.addEventListener('click', () => {
-    el.inputFocus.value = config.focus;
-    el.inputShort.value = config.short;
-    el.inputLong.value = config.long;
-    el.repeatToggle.checked = config.repeatSequence;
-    el.soundToggle.checked = config.soundEnabled;
-    renderSequenceRail();
-    el.settingsDrawer.classList.add('open');
-  });
-  
-  el.closeSettingsBtn.addEventListener('click', () => el.settingsDrawer.classList.remove('open'));
+ if (el.settingsBtn && el.settingsDrawer) {
+    el.settingsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (el.inputFocus) el.inputFocus.value = config.focus;
+      if (el.inputShort) el.inputShort.value = config.short;
+      if (el.inputLong) el.inputLong.value = config.long;
+      if (el.repeatToggle) el.repeatToggle.checked = config.repeatSequence;
+      if (el.soundToggle) el.soundToggle.checked = config.soundEnabled;
+      renderSequenceRail();
+      el.settingsDrawer.classList.toggle('open');
+    });
+  }
 
-  el.soundToggle.addEventListener('change', () => {
-    config.soundEnabled = el.soundToggle.checked;
-    saveConfig();
+  if (el.closeSettingsBtn && el.settingsDrawer) {
+    el.closeSettingsBtn.addEventListener('click', () => {
+      el.settingsDrawer.classList.remove('open');
+    });
+  }
+  
+  if (el.closeSettingsBtn && el.settingsDrawer) {
+    el.closeSettingsBtn.addEventListener('click', () => {
+      el.settingsDrawer.classList.remove('open');
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (el.settingsDrawer && el.settingsBtn) {
+      if (el.settingsDrawer.classList.contains('open') && 
+          !el.settingsDrawer.contains(e.target) && 
+          !el.settingsBtn.contains(e.target)) {
+        el.settingsDrawer.classList.remove('open');
+      }
+    }
   });
+
+  if (el.soundToggle) {
+    el.soundToggle.addEventListener('change', () => {
+      config.soundEnabled = el.soundToggle.checked;
+      saveConfig();
+    });
+  }
 
   ['inputFocus', 'inputShort', 'inputLong'].forEach(id => {
-    el[id].addEventListener('input', () => {
-      config.focus = parseInt(el.inputFocus.value) || 25;
-      config.short = parseInt(el.inputShort.value) || 5;
-      config.long = parseInt(el.inputLong.value) || 15;
+    if (el[id]) {
+      el[id].addEventListener('input', () => {
+        config.focus = parseInt(el.inputFocus.value) || 25;
+        config.short = parseInt(el.inputShort.value) || 5;
+        config.long = parseInt(el.inputLong.value) || 15;
+        saveConfig();
+        if (!state.isRunning) {
+          state.timeLeft = getModeDuration(getCurrentMode());
+          saveState();
+          updateDisplay();
+        }
+      });
+    }
+  });
+
+  if (el.repeatToggle) {
+    el.repeatToggle.addEventListener('change', () => {
+      config.repeatSequence = el.repeatToggle.checked;
       saveConfig();
-      if (!state.isRunning) {
-        state.timeLeft = getModeDuration(getCurrentMode());
-        saveState();
-        updateDisplay();
-      }
     });
-  });
+  }
 
-  el.repeatToggle.addEventListener('change', () => {
-    config.repeatSequence = el.repeatToggle.checked;
-    saveConfig();
-  });
+  if (el.bgFileInput) {
+    el.bgFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) compressAndSaveBg(file);
+    });
+  }
 
-  el.bgFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) compressAndSaveBg(file);
-  });
+  if (el.removeBgBtn) {
+    el.removeBgBtn.addEventListener('click', () => setBackground(null));
+  }
 
-  el.removeBgBtn.addEventListener('click', () => setBackground(null));
-
-  // Load Custom Atmosphere on Boot
   const storedWallpaper = localStorage.getItem(BG_STORAGE_KEY);
   if (storedWallpaper) {
     setBackground(storedWallpaper, false);
   }
 
-  el.volumeRange.value = config.musicVolume;
+  if (el.volumeRange) {
+    el.volumeRange.value = config.musicVolume;
+  }
 
   if (config.musicTrack && config.musicTrack !== 'none') {
     const activeOption = document.querySelector(`.select-option[data-value="${config.musicTrack}"]`);
     if (activeOption) {
       document.querySelectorAll('.select-option').forEach(o => o.classList.remove('active'));
       activeOption.classList.add('active');
-      el.selectedMusicText.textContent = activeOption.textContent;
+      if (el.selectedMusicText) el.selectedMusicText.textContent = activeOption.textContent;
     }
   }
 
-  // Initialize UI & Sync Continuity
   applyCurrentState();
   syncTimeOnLoad();
   initAmbientParticles();

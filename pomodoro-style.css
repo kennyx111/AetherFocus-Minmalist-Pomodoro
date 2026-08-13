@@ -16,9 +16,10 @@
 
 body {
   font-family: var(--font-sans);
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-color: #050608;
   color: #f8fafc;
   display: flex;
@@ -31,7 +32,7 @@ body {
 
 /* Background Layers */
 .bg-layer {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -57,16 +58,22 @@ body {
   background: radial-gradient(circle at center, transparent 20%, rgba(5, 6, 8, 0.8) 100%);
 }
 
-/* Header & Vertical Alignment Anchor */
+/* Fixed Top-Left Header & Logo Anchor */
 .app-header {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   z-index: 10;
   width: 100%;
-  max-width: 1400px;
-  padding: 2.5rem 3rem 0; /* Align with 3rem right padding */
+  padding: 2rem 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  pointer-events: none; /* Allows click through empty header space */
+}
+
+.app-header > * {
+  pointer-events: auto; /* Re-enables interaction on buttons/logo */
 }
 
 .brand {
@@ -75,6 +82,15 @@ body {
   gap: 0.75rem;
   cursor: pointer;
   perspective: 600px;
+}
+
+.brand-logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4);
+  transition: var(--transition-smooth);
 }
 
 .brand-name {
@@ -93,18 +109,9 @@ body {
   text-shadow: 0 0 15px rgba(var(--accent-rgb), 0.8), 0 0 30px rgba(var(--accent-rgb), 0.4);
 }
 
-.brand:hover .brand-dot {
-  transform: scale(1.3);
+.brand:hover .brand-logo-img {
+  transform: scale(1.1);
   box-shadow: 0 0 18px var(--theme-accent);
-}
-
-.brand-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--theme-accent);
-  box-shadow: 0 0 12px var(--theme-accent);
-  transition: var(--transition-smooth);
 }
 
 .icon-btn {
@@ -127,7 +134,7 @@ body {
   border-color: rgba(var(--accent-rgb), 0.3);
 }
 
-/* Main Display Stage */
+/* Centered Main Display Stage */
 .timer-container {
   position: relative;
   z-index: 10;
@@ -137,13 +144,14 @@ body {
   justify-content: center;
   margin: auto;
   width: 100%;
+  padding: 6rem 1rem 3rem; /* Padding accounts for fixed header */
 }
 
 .mode-indicator {
   font-size: 0.85rem;
   letter-spacing: 0.5em;
   font-weight: 600;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   color: #ffffff;
   text-shadow: 0 0 12px rgba(var(--accent-rgb), 0.5);
   animation: subtleModeGlow 2s infinite ease-in-out;
@@ -160,15 +168,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 900px;
 }
 
-/* Mechanical Flip Clock Stage */
+/* Increased Monumental Mechanical Flip Clock Stage */
 .flip-clock-stage {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
+  gap: 1.5rem;
   perspective: 1400px;
   padding: 1rem;
+  width: 100%;
 }
 
 .flip-group {
@@ -178,12 +190,12 @@ body {
 
 .flip-unit {
   position: relative;
-  width: 160px;
-  height: 220px;
+  width: 180px;
+  height: 250px;
   background: #0f1014;
   border-radius: 16px;
   font-family: var(--font-mono);
-  font-size: 11rem;
+  font-size: 13rem;
   font-weight: 800;
   color: #ffffff;
   box-shadow: 
@@ -213,8 +225,8 @@ body {
 .top-half .digit, .bottom-half .digit, .flap-top .digit, .flap-bottom .digit {
   position: absolute;
   width: 100%;
-  height: 220px;
-  line-height: 220px;
+  height: 250px;
+  line-height: 250px;
   text-align: center;
   left: 0;
 }
@@ -309,7 +321,7 @@ body {
 
 /* Controls Dock */
 .control-dock {
-  margin-top: 3.5rem;
+  margin-top: 3rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -369,12 +381,13 @@ body {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-top: 2rem;
+  margin-top: 1.75rem;
   padding: 0.6rem 1.25rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 9999px;
   backdrop-filter: blur(12px);
+  margin-bottom: 2rem;
 }
 
 .session-dots { 
@@ -420,11 +433,11 @@ body {
   font-size: 0.85rem;
 }
 
-/* Floating Music Deck (In exact vertical alignment with menu button) */
+/* Floating Music Deck */
 .music-widget-wrapper {
   position: fixed;
-  bottom: 2.5rem;
-  right: 3rem; /* Matched perfectly with header padding right */
+  bottom: 2rem;
+  right: 2rem;
   z-index: 90;
   display: flex;
   flex-direction: column;
@@ -440,7 +453,6 @@ body {
   transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Spinning Record Rotation when Music Playing */
 .music-btn.active {
   background: var(--theme-accent);
   color: #050608;
@@ -451,41 +463,6 @@ body {
 @keyframes spinVinyl {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* Floating Music Particle Container */
-.music-shard-emitter {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: visible;
-  z-index: 1;
-}
-
-/* Floating Glass Shards for Music Deck */
-.music-shard {
-  position: absolute;
-  bottom: 50%;
-  right: 50%;
-  width: 8px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid var(--theme-accent);
-  backdrop-filter: blur(4px);
-  clip-path: polygon(50% 0%, 100% 70%, 30% 100%, 0% 40%);
-  animation: floatMusicShard 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  pointer-events: none;
-}
-
-@keyframes floatMusicShard {
-  0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(0.6) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--tx), var(--ty)) scale(1.4) rotate(var(--rot));
-  }
 }
 
 .music-popover {
@@ -593,15 +570,15 @@ body {
   font-weight: 600;
 }
 
-/* Custom Non-Native Volume Slider */
-.volume-control-wrapper {
+/* Volume Control Group */
+.volume-control-group {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   color: rgba(255, 255, 255, 0.6);
 }
 
-.custom-slider {
+.custom-range {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -611,7 +588,7 @@ body {
   outline: none;
 }
 
-.custom-slider::-webkit-slider-thumb {
+.custom-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 14px;
   height: 14px;
@@ -622,21 +599,10 @@ body {
   transition: transform 0.2s ease;
 }
 
-.custom-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.custom-range::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-/* Settings Drawer Overlay */
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 95;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-
-.drawer {
+/* Settings Drawer Panel */
+.settings-drawer {
   position: fixed;
   top: 0;
   right: 0;
@@ -653,8 +619,9 @@ body {
   box-shadow: -20px 0 60px rgba(0,0,0,0.8);
 }
 
-.drawer.open { transform: translateX(0); }
-.drawer.open ~ .drawer-backdrop { opacity: 1; pointer-events: auto; }
+.settings-drawer.open { 
+  transform: translateX(0); 
+}
 
 .drawer-header {
   padding: 1.5rem 1.75rem;
@@ -667,22 +634,13 @@ body {
   font-weight: 600;
 }
 
-.close-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.close-btn:hover { color: #fff; transform: rotate(90deg); }
-
-.drawer-content {
+.settings-form {
   padding: 1.75rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  height: calc(100% - 73px);
 }
 
 .setting-group {
@@ -691,52 +649,70 @@ body {
   gap: 0.85rem;
 }
 
-.setting-title {
+.setting-group h4 {
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
 }
 
-.inputs-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-}
-
-.input-field {
+.setting-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.input-field label {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.4);
+.setting-item label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.input-field input {
+.setting-item input[type="number"] {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 0.6rem;
+  padding: 0.5rem;
+  width: 70px;
   color: #fff;
   font-family: var(--font-mono);
   font-size: 0.9rem;
   outline: none;
+  text-align: center;
   transition: var(--transition-smooth);
 }
 
-.input-field input:focus {
+.setting-item input[type="number"]:focus {
   border-color: var(--theme-accent);
   box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
 }
 
 /* Sequence Construction Rail */
-.sequence-builder {
+.builder-hint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.builder-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
+}
+
+.add-block-btn {
+  flex: 1;
+  padding: 0.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.add-block-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
 }
 
 .sequence-rail {
@@ -768,41 +744,11 @@ body {
 .chip-SHORT { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 .chip-LONG { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
 
-.chip-remove { opacity: 0.5; font-size: 0.6rem; }
+.chip-remove { opacity: 0.5; font-size: 0.60rem; }
 .flow-chip:hover { transform: scale(1.05); }
 
-.add-block-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.add-block-btn {
-  flex: 1;
-  padding: 0.4rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.65rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.add-block-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-/* Custom File Upload Button */
-.upload-btn-wrapper {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-.upload-btn {
+/* File Upload Label */
+.file-upload-label {
   width: 100%;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.04);
@@ -818,24 +764,13 @@ body {
   transition: var(--transition-smooth);
 }
 
-.upload-btn:hover {
+.file-upload-label:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(var(--accent-rgb), 0.4);
   color: #fff;
 }
 
-.upload-btn-wrapper input[type=file] {
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-
-.remove-bg-btn {
-  display: none;
+.btn-danger-text {
   width: 100%;
   margin-top: 0.5rem;
   padding: 0.4rem;
@@ -846,15 +781,9 @@ body {
   cursor: pointer;
 }
 
-.remove-bg-btn:hover { text-decoration: underline; }
+.btn-danger-text:hover { text-decoration: underline; }
 
 /* Custom Switch Toggle */
-.setting-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .switch {
   position: relative;
   display: inline-block;
@@ -888,55 +817,54 @@ body {
 input:checked + .slider { background-color: var(--theme-accent); }
 input:checked + .slider:before { transform: translateX(20px); background-color: #050608; }
 
-/* Footer Copyright Stamp */
-.app-footer {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  padding: 0 3rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.footer-stamp {
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.25);
-  font-weight: 500;
-}
-
-/* Responsive Media Queries */
-@media (max-width: 768px) {
+/* Responsive Media Queries for Scalability Across Devices */
+@media (max-width: 1024px) {
   .flip-unit {
-    width: 100px;
-    height: 140px;
-    font-size: 7rem;
+    width: 120px;
+    height: 170px;
+    font-size: 8.5rem;
   }
   .flip-unit .digit {
-    height: 140px;
-    line-height: 140px;
+    height: 170px;
+    line-height: 170px;
   }
   .flip-clock-stage { gap: 1rem; }
-  .flip-group { gap: 0.4rem; }
+}
+
+@media (max-width: 768px) {
+  .app-header { padding: 1.25rem 1.5rem; }
+  .flip-unit {
+    width: 85px;
+    height: 120px;
+    font-size: 5.8rem;
+    border-radius: 12px;
+  }
+  .flip-unit .digit {
+    height: 120px;
+    line-height: 120px;
+  }
+  .flip-clock-stage { gap: 0.6rem; }
+  .flip-colon-separator { gap: 1rem; padding: 0 0.2rem; }
+  .colon-dot { width: 12px; height: 12px; }
+  .control-dock { margin-top: 2rem; }
 }
 
 @media (max-width: 480px) {
-  .app-header { padding: 1.5rem 1.5rem 0; }
-  .app-footer { padding: 0 1.5rem 1rem; }
-  .music-widget-wrapper { bottom: 1.5rem; right: 1.5rem; }
+  .app-header { padding: 1rem; }
+  .brand-name { font-size: 0.9rem; }
+  .brand-logo-img { width: 26px; height: 26px; }
+  .music-widget-wrapper { bottom: 1.25rem; right: 1.25rem; }
   .flip-unit {
-    width: 70px;
-    height: 100px;
-    font-size: 5rem;
-    border-radius: 10px;
+    width: 62px;
+    height: 90px;
+    font-size: 4.2rem;
+    border-radius: 8px;
   }
   .flip-unit .digit {
-    height: 100px;
-    line-height: 100px;
+    height: 90px;
+    line-height: 90px;
   }
-  .flip-clock-stage { gap: 0.5rem; }
-  .colon-dot { width: 10px; height: 10px; }
-  .dock-btn.primary { padding: 0.8rem 1.8rem; font-size: 0.75rem; }
+  .flip-clock-stage { gap: 0.35rem; }
+  .colon-dot { width: 8px; height: 8px; }
+  .dock-btn.primary { padding: 0.7rem 1.5rem; font-size: 0.7rem; letter-spacing: 0.2em; }
 }
